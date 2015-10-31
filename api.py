@@ -116,10 +116,7 @@ class FlipkartAPI:
 	
 	''' TO_DO returns '''
 	def returns(self):
-		if self.sandbox == True:
-			url = "http://sandbox-api.flipkart.net/returns"
-		else:
-			url = "http://api.flipkart.net/returns"
+		url = "http://api.flipkart.net/returns"
 		payload = {'source':['customer_return','courier_return'],
 				   'modifiedAfter':'2015-06-30',}
 		return self.session.get(url, params=payload)
@@ -195,16 +192,11 @@ class FlipkartAPI:
 
 
 
-
-	def cancel_orders(self, order_item_id_list):
-		if self.sandbox == True:
-			url = "https://sandbox-api.flipkart.net/sellers/orders/cancel"
-		else:
-			url = "https://api.flipkart.net/sellers/orders/cancel"
-		payload = []
-		for order_item_id in order_item_id_list:
-			payload.append({'orderItemId':order_item_id,
-							 'reason':'Cancelled By Seller'})
+	''' TO-DO cancel_orders '''
+	def cancel_orders(self, orderItemId, reason=None):
+		url = "https://api.flipkart.net/sellers/orders/cancel"
+		payload = [{'orderItemId':orderItemId,
+					'reason':reason},]
 		return self.session.post(url, data = json.dumps(payload))
 
 
@@ -217,6 +209,19 @@ class FlipkartAPI:
 			url = "https://api.flipkart.net/sellers/orders/dispatch"
 		payload = {"orderItems": [{"orderItemId": orderItemId,
 					"quantity": quantity},]}
+		return self.session.post(url, data =json.dumps(payload))
+
+
+	def bulk_dispatch_orders(self, orderItemIdList, quantityList):
+		if self.sandbox == True:
+			url = "https://sandbox-api.flipkart.net/sellers/orders/dispatch"
+		else:
+			url = "https://api.flipkart.net/sellers/orders/dispatch"
+
+		payload = {"orderItems": []}
+		for oid, qty in orderItemIdList, quantityList:
+			payload['orderItems'].append({"orderItemId": oid, "quantity": qty})
+			
 		return self.session.post(url, data =json.dumps(payload))
 
 

@@ -36,7 +36,7 @@ class FlipkartAPI:
 
 		'''
 		Method search_orders fetch all the orders which are not completed. We have to pass the status of Orders as a list of strings.
-		Status: ["APPROVED", "CANCELLED", "READY_TO_DISPATCH", "PACKED"]
+		Status: ["APPROVED", "CANCELLED", "READY_TO_DISPATCH", "PACKED"]. Returns a list of orders with each order of <dict> type.
 		'''
 
 		if self.sandbox == True:
@@ -48,12 +48,15 @@ class FlipkartAPI:
 		filter = {"filter": {"states": order_states},}
 		response = self.session.post(url, data=json.dumps(filter))
 		resp_json = response.json()
-		data_string = resp_json
+		orders = []
+		for each in resp_json['orderItems']:
+			orders.append(each)
 		while resp_json.get('hasMore') == True:
 			response = self.session.get(url1.format(resp_json['nextPageUrl']))
 			resp_json = response.json()
-			data_string.update(resp_json)
-		return data_string
+			for each in resp_json['orderItems']:
+				orders.append(each)
+		return orders
 
 
 
@@ -221,7 +224,7 @@ class FlipkartAPI:
 		payload = {"orderItems": []}
 		for oid, qty in orderItemIdList, quantityList:
 			payload['orderItems'].append({"orderItemId": oid, "quantity": qty})
-			
+
 		return self.session.post(url, data =json.dumps(payload))
 
 
